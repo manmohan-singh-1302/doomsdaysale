@@ -31,5 +31,5 @@ public class OrderItem {
 
     private Integer sellingPrice;
 
-    private User userId;
+    private Long userId;
 }

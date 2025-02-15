@@ -24,7 +24,7 @@ public class Order {
 
     private String orderId;
 
-    @ManyToOne // One user can have multiple orders
+    @ManyToOne// One user can have multiple orders
     private User user;
 
     private Long sellerId;

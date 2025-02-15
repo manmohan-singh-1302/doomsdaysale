@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EnableJpaRepositories(basePackages = "com.doomsdaysale.repository")
-@EntityScan(basePackages = "com.doomsdaysale.modal")
+@EntityScan(basePackages = "com.doomsdaysale.model")
 public class EcommerceApplication {
 
 	public static void main(String[] args) {

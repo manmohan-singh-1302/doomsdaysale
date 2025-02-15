@@ -4,6 +4,7 @@ import com.doomsdaysale.model.User;
 import com.doomsdaysale.repository.UserRepository;
 import com.doomsdaysale.response.SignupRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -15,12 +16,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 //@RequiredArgsConstructor
 public class AuthController {
+    @Autowired
     private final UserRepository userRepository;
 
     public AuthController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
     @PostMapping("/signup") // as we are posting data we need to use PostMapping
     public ResponseEntity<User> createUserHandler(@RequestBody SignupRequest req){
         // create a new user and set the email and full name
