@@ -1,4 +1,11 @@
 package com.doomsdaysale.service;
 
-public class AuthService {
+import com.doomsdaysale.request.LoginRequest;
+import com.doomsdaysale.response.AuthResponse;
+import com.doomsdaysale.response.SignupRequest;
+
+public interface AuthService {
+    void sentLoginOtp(String email) throws Exception;
+    String createUser(SignupRequest req) throws Exception;
+    AuthResponse signin (LoginRequest req);
 }

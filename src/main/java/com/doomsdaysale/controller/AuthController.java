@@ -1,8 +1,14 @@
 package com.doomsdaysale.controller;
 
+import com.doomsdaysale.domain.USER_ROLE;
 import com.doomsdaysale.model.User;
+import com.doomsdaysale.model.VerificationCode;
 import com.doomsdaysale.repository.UserRepository;
+import com.doomsdaysale.request.LoginRequest;
+import com.doomsdaysale.response.ApiResponse;
+import com.doomsdaysale.response.AuthResponse;
 import com.doomsdaysale.response.SignupRequest;
+import com.doomsdaysale.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,22 +20,41 @@ import org.springframework.web.bind.annotation.RestController;
 // Rest-controllers are used to make a class web request handler. Rest controller is the combination of controller and requestbody annotation.
 @RestController
 @RequestMapping("/auth")
-//@RequiredArgsConstructor
+@RequiredArgsConstructor // using this we don't need to create a constructor for the repository to initialise.
 public class AuthController {
     @Autowired
     private final UserRepository userRepository;
+    private final AuthService authService;
 
-    public AuthController(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
     @PostMapping("/signup") // as we are posting data we need to use PostMapping
-    public ResponseEntity<User> createUserHandler(@RequestBody SignupRequest req){
+    public ResponseEntity<AuthResponse> createUserHandler(@RequestBody SignupRequest req) throws Exception {
         // create a new user and set the email and full name
-        User user = new User();
-        user.setEmail(req.getEmail());
-        user.setFullName(req.getFullName());
+//        User user = new User();
+//        user.setEmail(req.getEmail());
+//        user.setFullName(req.getFullName());
+//        User savedUser = userRepository.save(user);
+        String jwt = authService.createUser(req);
+        //AuthResponse is used to contain information about the authenticated user like user details, token, issue date, state etc. we only use authresponse in case of user authentication.
+        AuthResponse res = new AuthResponse();
+        res.setJwt(jwt);
+        res.setMessage("User Registration Successful");
+        res.setRole(USER_ROLE.ROLE_CUSTOMER);
 
-        User savedUser = userRepository.save(user);
-        return ResponseEntity.ok(savedUser);
+        return ResponseEntity.ok(res);
+    }
+    @PostMapping("/sent/login-signup-otp") // as we are posting data we need to use PostMapping
+    public ResponseEntity<ApiResponse> sentOtpHandler(@RequestBody VerificationCode req) throws Exception {
+        authService.sentLoginOtp(req.getEmail());
+        ApiResponse res = new ApiResponse();
+        res.setMessage("Otp sent Successfully");
+
+        return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/signin") // as we are posting data we need to use PostMapping
+    public ResponseEntity<AuthResponse> loginHandler(@RequestBody LoginRequest    req) throws Exception {
+        AuthResponse authResponse = authService.signin(req);
+
+        return ResponseEntity.ok(authResponse);
     }
 }
