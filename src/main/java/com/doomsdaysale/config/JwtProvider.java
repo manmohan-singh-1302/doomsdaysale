@@ -43,9 +43,8 @@ public class JwtProvider {
     }
 
     public String getEmailFromJwtToken(String jwt){
-        // the jwt is sent in the form of bearer <jwt_token>
+        // the jwt is sent in the form of bearer <jwt_token>. It removes the "Bearer " prefix from the token string.
         jwt = jwt.substring(7);
-      //  Claims claims = Jwts.parser().setSigningKey(key).build().parseClaimsJws(jwt).getBody();
         Claims claims = Jwts.parser().verifyWith(key).build().parseSignedClaims(jwt).getPayload();
         return String.valueOf(claims.get("email"));
     }

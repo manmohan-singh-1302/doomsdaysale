@@ -1,4 +1,4 @@
-/* Repositories are constructed to add an abstraction layer between the database and application/
+/* Repositories are constructed to add an abstraction layer between the database and application
 * */
 package com.doomsdaysale.repository;
 
