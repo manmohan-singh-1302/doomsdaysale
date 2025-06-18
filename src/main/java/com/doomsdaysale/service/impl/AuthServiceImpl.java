@@ -3,9 +3,11 @@ package com.doomsdaysale.service.impl;
 import com.doomsdaysale.config.JwtProvider;
 import com.doomsdaysale.domain.USER_ROLE;
 import com.doomsdaysale.model.Cart;
+import com.doomsdaysale.model.Seller;
 import com.doomsdaysale.model.User;
 import com.doomsdaysale.model.VerificationCode;
 import com.doomsdaysale.repository.CartRepository;
+import com.doomsdaysale.repository.SellerRepository;
 import com.doomsdaysale.repository.UserRepository;
 import com.doomsdaysale.repository.VerificationCodeRepository;
 import com.doomsdaysale.request.LoginRequest;
@@ -24,7 +26,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,23 +35,35 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
+    private final SellerRepository sellerRepository;
     private final PasswordEncoder passwordEncoder;
     private final CartRepository cartRepository;
     private final JwtProvider jwtProvider;
     private final VerificationCodeRepository verificationCodeRepository;
     private final EmailService emailService;
     private final CustomUserServiceImpl customUserService;
+
+
+
     @Override
-    public void sentLoginOtp(String email) throws Exception {
-        String name = "";
-        String SIGNING_PREFIX = "signin_";
+    public void sentLoginOtp(String email, USER_ROLE role) throws Exception {
+        String SIGNING_PREFIX = "signing_";
+
         if(email.startsWith(SIGNING_PREFIX)){
             email = email.substring(SIGNING_PREFIX.length());
-            User user = userRepository.findByEmail(email);
-            if(user == null){
-                throw new Exception("User not found with email - "+email);
+
+            if(role.equals(USER_ROLE.ROLE_SELLER)) {
+                Seller seller = sellerRepository.findByEmail(email);
+                if(seller == null){
+                    throw new Exception("Seller not found with email - "+email);
+                }
+            } else{
+                User user = userRepository.findByEmail(email);
+                if (user == null) {
+                    throw new Exception("User not found with email - " + email);
+                }
             }
-           name = user.getFullName();
+
         }
         VerificationCode isExists = verificationCodeRepository.findByEmail(email);
         if(isExists != null){
@@ -78,7 +91,6 @@ public class AuthServiceImpl implements AuthService {
                 "\n" +
                 "Best regards,\n" +
                 "The DoomsdaySale Team";
-        System.out.println(name);
         emailService.sendVerificationOtpEmail(email, otp, subject, text);
     }
 
@@ -120,7 +132,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public AuthResponse signin(LoginRequest req) {
+    public AuthResponse signing(LoginRequest req) throws Exception {
         String username = req.getEmail();
         String otp = req.getOtp();
         Authentication authentication = authenticate(username, otp);
@@ -139,15 +151,21 @@ public class AuthServiceImpl implements AuthService {
         return authResponse;
     }
 
-    private Authentication authenticate(String username, String otp) {
+    private Authentication authenticate(String username, String otp) throws Exception {
        UserDetails userDetails = customUserService.loadUserByUsername(username);
+
+       // remove the seller_ prefix from the username to get the original email.
+       String SELLER_PREFIX = "seller_";
+       if(username.startsWith(SELLER_PREFIX)){
+           username = username.substring(SELLER_PREFIX.length());
+       }
 
        if(userDetails == null){
            throw new BadCredentialsException("Invalid Username or Password");
        }
        VerificationCode verificationCode = verificationCodeRepository.findByEmail(username);
        if(verificationCode == null || !verificationCode.getOtp().equals(otp)){
-           throw new BadCredentialsException("Invalid Otp...");
+           throw new Exception("Invalid Otp...");
        }
        return new UsernamePasswordAuthenticationToken(username, null, userDetails.getAuthorities());
     }

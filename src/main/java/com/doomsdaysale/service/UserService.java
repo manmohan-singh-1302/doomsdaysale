@@ -5,6 +5,6 @@ package com.doomsdaysale.service;
 import com.doomsdaysale.model.User;
 
 public interface UserService {
-    User findUserByJwtToken(String jwt);
-    User findUserByEmail(String email);
+    public  User findUserByJwtToken(String jwt) throws Exception;
+    public User findUserByEmail(String email) throws Exception;
 }

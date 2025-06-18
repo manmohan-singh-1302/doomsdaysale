@@ -41,7 +41,7 @@ public class User {
     // we have created an enum for role which specifies the types of roles for the application use and by default setting it as customer
     private USER_ROLE role = USER_ROLE.ROLE_CUSTOMER;
 
-    // This will allow the user to fetch the address and maintain unique address in the database.
+    // This will allow the user to fetch the address and maintain a unique address in the database.
     @OneToMany // a user can have multiple addresses
     private Set<Address> addresses = new HashSet<>();
 
