@@ -1,8 +1,10 @@
 package com.doomsdaysale.controller;
 
+import com.doomsdaysale.config.JwtProvider;
 import com.doomsdaysale.domain.AccountStatus;
 import com.doomsdaysale.exceptions.SellerException;
 import com.doomsdaysale.model.Seller;
+import com.doomsdaysale.model.SellerReport;
 import com.doomsdaysale.model.VerificationCode;
 import com.doomsdaysale.repository.SellerRepository;
 import com.doomsdaysale.repository.VerificationCodeRepository;
@@ -10,6 +12,7 @@ import com.doomsdaysale.request.LoginRequest;
 import com.doomsdaysale.response.AuthResponse;
 import com.doomsdaysale.service.AuthService;
 import com.doomsdaysale.service.EmailService;
+import com.doomsdaysale.service.SellerReportService;
 import com.doomsdaysale.service.SellerService;
 import com.doomsdaysale.utils.OtpUtil;
 import jakarta.mail.MessagingException;
@@ -29,6 +32,8 @@ public class SellerController {
     private final AuthService authService;
     private final EmailService emailService;
     private final SellerRepository sellerRepository;
+    private final JwtProvider jwtProvider;
+    private final SellerReportService sellerReportService;
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> LoginSeller(@RequestBody LoginRequest req) throws Exception {
@@ -85,12 +90,16 @@ public class SellerController {
         return new ResponseEntity<>(seller, HttpStatus.OK);
     }
 
-//    @GetMapping("/report")
-//    public ResponseEntity<SellerReport> getSellerReport(
-//            @RequestHeader("Authorization") String jwt
-//    ) throws Exception{
-//
-//    }
+    @GetMapping("/report")
+    public ResponseEntity<SellerReport> getSellerReport(
+            @RequestHeader("Authorization") String jwt
+    ) throws Exception{
+        Seller seller = sellerService.getSellerProfile(jwt);
+        SellerReport report = sellerReportService.getSellerReport(seller);
+
+        return new ResponseEntity<>(report, HttpStatus.OK);
+
+    }
 
     @GetMapping
     public ResponseEntity<List<Seller>> getAllSellers(

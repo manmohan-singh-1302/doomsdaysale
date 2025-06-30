@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
-public class Reviews {
+public class Review {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)

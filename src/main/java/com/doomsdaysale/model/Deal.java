@@ -18,4 +18,7 @@ public class Deal {
 
     @OneToOne // this represent the category on which the discount is offered.
     private HomeCategory category;
+
+    public Deal(Long o, int discount, HomeCategory category) {
+    }
 }
